@@ -1,4 +1,4 @@
-# tasks_app
+# Products_app
 
 A new Flutter project.
 
