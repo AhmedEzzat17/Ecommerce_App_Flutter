@@ -121,100 +121,167 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Widget _buildMenuButton(
+    String title,
+    IconData icon,
+    VoidCallback onTap, {
+    Color? color,
+    bool hideArrow = false,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: (color ?? Theme.of(context).colorScheme.primary)
+                      .withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  color: color ?? Theme.of(context).colorScheme.primary,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: color ?? Colors.black87,
+                  ),
+                ),
+              ),
+              if (!hideArrow)
+                Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Colors.grey.shade400,
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Card(
-            elevation: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.account_circle,
-                    size: 80,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    _userProfile?['name'] ?? 'Loading...',
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _userProfile?['email'] ?? 'Please wait...',
-                    style: const TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
+          Container(
+            padding: const EdgeInsets.all(24.0),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Theme.of(context).colorScheme.primary,
+                  Theme.of(context).colorScheme.primary.withRed(0),
                 ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                const CircleAvatar(
+                  radius: 45,
+                  backgroundColor: Colors.white,
+                  child: Icon(Icons.person, size: 50, color: Colors.grey),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  _userProfile?['name'] ?? 'Loading...',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _userProfile?['email'] ?? 'Please wait...',
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.white.withOpacity(0.9),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
+          const Text(
+            'Account Details',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 16),
           if (_isAdmin) ...[
-            ElevatedButton.icon(
-              onPressed: () => Navigator.push(
+            _buildMenuButton(
+              'Manage Categories',
+              Icons.category_outlined,
+              () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const CategoriesScreen()),
               ),
-              icon: const Icon(Icons.category),
-              label: const Text(
-                'Manage Categories',
-                style: TextStyle(fontSize: 16),
-              ),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.all(16),
-              ),
             ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: _showDeletedProducts,
-              icon: const Icon(Icons.restore_from_trash),
-              label: const Text(
-                'Deleted Products',
-                style: TextStyle(fontSize: 16),
-              ),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.all(16),
-              ),
+            _buildMenuButton(
+              'Deleted Products',
+              Icons.restore_from_trash_outlined,
+              _showDeletedProducts,
             ),
-            const SizedBox(height: 16),
           ],
-          ElevatedButton.icon(
-            onPressed: () => Navigator.push(
+          _buildMenuButton(
+            'All Orders',
+            Icons.receipt_long_outlined,
+            () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const OrdersScreen()),
             ),
-            icon: const Icon(Icons.receipt_long),
-            label: const Text('My Orders', style: TextStyle(fontSize: 16)),
-            style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
           ),
+          _buildMenuButton('About Us', Icons.info_outline, _showAbout),
           const SizedBox(height: 16),
-          ElevatedButton.icon(
-            onPressed: _showAbout,
-            icon: const Icon(Icons.info_outline),
-            label: const Text('About Us', style: TextStyle(fontSize: 16)),
-            style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
+          _buildMenuButton(
+            'Logout',
+            Icons.logout,
+            _logout,
+            color: Colors.red,
+            hideArrow: true,
           ),
-          const SizedBox(height: 16),
-          ElevatedButton.icon(
-            onPressed: _logout,
-            icon: const Icon(Icons.logout),
-            label: const Text(
-              'Logout',
-              style: TextStyle(fontSize: 16, color: Colors.white),
-            ),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.all(16),
-              backgroundColor: Colors.red,
-            ),
-          ),
+          const SizedBox(height: 24),
         ],
       ),
     );

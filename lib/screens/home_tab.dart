@@ -69,13 +69,21 @@ class _HomeTabState extends State<HomeTab> {
 
   Widget _buildProductCard(Map<String, dynamic> product, dynamic displayUrl) {
     return Container(
-      width: 150,
-      margin: const EdgeInsets.only(right: 12),
-      child: Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => ProductDetails(product: product)),
@@ -86,7 +94,7 @@ class _HomeTabState extends State<HomeTab> {
               Expanded(
                 flex: 5,
                 child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                   child: displayUrl != null
                       ? Image.network(
                           displayUrl.toString(),
@@ -100,20 +108,20 @@ class _HomeTabState extends State<HomeTab> {
               Expanded(
                 flex: 4,
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(10.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         product['title'] ?? 'No Title',
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
                         '\$${product['price']}',
-                        style: const TextStyle(fontSize: 12, color: Colors.green, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.w800),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -121,7 +129,7 @@ class _HomeTabState extends State<HomeTab> {
                           Expanded(
                             child: Text(
                               product['category']?['name'] ?? 'Uncategorized',
-                              style: TextStyle(fontSize: 9, color: Colors.grey.shade600),
+                              style: TextStyle(fontSize: 11, color: Colors.grey.shade500, fontWeight: FontWeight.w500),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -129,12 +137,12 @@ class _HomeTabState extends State<HomeTab> {
                           GestureDetector(
                             onTap: () => _addToCart(product['id']),
                             child: Container(
-                              padding: const EdgeInsets.all(3),
+                              padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
                                 color: Theme.of(context).colorScheme.primary,
-                                shape: BoxShape.circle,
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Icon(Icons.add, size: 12, color: Colors.white),
+                              child: const Icon(Icons.add_shopping_cart, size: 14, color: Colors.white),
                             ),
                           ),
                         ],
@@ -246,20 +254,24 @@ class _HomeTabState extends State<HomeTab> {
                 ],
               ),
               const SizedBox(height: 12),
-              SizedBox(
-                height: 175,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _latestProducts.length,
-                  itemBuilder: (context, index) {
-                    final product = _latestProducts[index];
-                    final images = product['images'] as List<dynamic>? ?? [];
-                    final displayUrl = (images.isNotEmpty && images[0] is Map)
-                        ? images[0]['image_path']
-                        : (images.isNotEmpty ? images[0] : null);
-                    return _buildProductCard(product, displayUrl);
-                  },
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.72,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
                 ),
+                itemCount: _latestProducts.length,
+                itemBuilder: (context, index) {
+                  final product = _latestProducts[index];
+                  final images = product['images'] as List<dynamic>? ?? [];
+                  final displayUrl = (images.isNotEmpty && images[0] is Map)
+                      ? images[0]['image_path']
+                      : (images.isNotEmpty ? images[0] : null);
+                  return _buildProductCard(product, displayUrl);
+                },
               ),
             ],
           ),

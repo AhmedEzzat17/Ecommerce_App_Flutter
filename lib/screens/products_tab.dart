@@ -69,48 +69,41 @@ class _ProductsTabState extends State<ProductsTab> {
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-              color: Colors.white,
-              child: Column(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              color: Colors.transparent,
+              child: Row(
                 children: [
-                  SizedBox(
-                    height: 40,
-                    child: TextField(
-                      onChanged: _onSearchChanged,
-                      decoration: InputDecoration(
-                        hintText: 'Search products...',
-                        hintStyle: const TextStyle(fontSize: 14),
-                        prefixIcon: Icon(Icons.search, size: 20, color: Theme.of(context).colorScheme.primary),
-                        filled: true,
-                        fillColor: Colors.grey.shade100,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                        contentPadding: EdgeInsets.zero,
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
                       ),
-                      style: const TextStyle(fontSize: 14),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      const Icon(Icons.sort, size: 18, color: Colors.blueGrey),
-                      const SizedBox(width: 6),
-                      const Text('Sort by:', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.blueGrey)),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: [
-                              _buildSortChip('Latest Added', ''),
-                              const SizedBox(width: 8),
-                              _buildSortChip('Lowest Price', 'price'),
-                              const SizedBox(width: 8),
-                              _buildSortChip('Release Date', 'date'),
-                            ],
-                          ),
+                      child: TextField(
+                        onChanged: _onSearchChanged,
+                        decoration: InputDecoration(
+                          hintText: 'Search products...',
+                          hintStyle: TextStyle(fontSize: 14, color: Colors.grey.shade400),
+                          prefixIcon: Icon(Icons.search, size: 22, color: Colors.grey.shade400),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 14),
                         ),
                       ),
-                    ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  GestureDetector(
+                    onTap: _showFilterBottomSheet,
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [BoxShadow(color: Theme.of(context).colorScheme.primary.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))],
+                      ),
+                      child: const Icon(Icons.tune, color: Colors.white, size: 24),
+                    ),
                   ),
                 ],
               ),
@@ -118,8 +111,14 @@ class _ProductsTabState extends State<ProductsTab> {
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () async => _fetchProducts(),
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: GridView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.72,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                  ),
                   itemCount: _products.length,
                   itemBuilder: (context, index) {
                     final product = _products[index];
@@ -136,79 +135,109 @@ class _ProductsTabState extends State<ProductsTab> {
       floatingActionButton: _isAdmin
           ? FloatingActionButton(
               onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddEditProductScreen())).then((_) => _fetchProducts()),
-              mini: true,
               backgroundColor: Theme.of(context).colorScheme.primary,
               foregroundColor: Colors.white,
-              child: const Icon(Icons.add, size: 24),
+              child: const Icon(Icons.add, size: 28),
             )
           : null,
     );
   }
 
   Widget _buildProductCard(Map<String, dynamic> product, dynamic displayUrl) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8),
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => ProductDetails(product: product)),
-        ).then((value) {
-          if (value == true) {
-            _fetchProducts();
-          }
-        }),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => ProductDetails(product: product)),
+          ).then((value) {
+            if (value == true) {
+              _fetchProducts();
+            }
+          }),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: displayUrl != null
-                    ? Image.network(displayUrl.toString(), width: 60, height: 60, fit: BoxFit.cover, errorBuilder: (c, e, s) => _buildPlaceholderImage())
-                    : _buildPlaceholderImage(),
-              ),
-              const SizedBox(width: 12),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                flex: 5,
+                child: Stack(
                   children: [
-                    Text(product['title'] ?? 'No Title', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 4),
-                    Text('\$${product['price']}', style: const TextStyle(fontSize: 14, color: Colors.green, fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
-                      child: Text(product['category']?['name'] ?? 'Uncategorized', style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.primary)),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                        child: displayUrl != null
+                            ? Image.network(displayUrl.toString(), fit: BoxFit.cover, errorBuilder: (c, e, s) => _buildPlaceholderImage())
+                            : _buildPlaceholderImage(),
+                      ),
                     ),
+                    if (_isAdmin)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: GestureDetector(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => AddEditProductScreen(product: product)),
+                          ).then((_) => _fetchProducts()),
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.9),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.edit, size: 16, color: Colors.blueGrey),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
-              Column(
-                children: [
-                  if (_isAdmin) ...[
-                    IconButton(
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      icon: const Icon(Icons.edit, size: 20, color: Colors.blueGrey),
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => AddEditProductScreen(product: product)),
-                      ).then((_) => _fetchProducts()),
-                    ),
-                    const SizedBox(height: 12),
-                  ],
-                  IconButton(
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    icon: const Icon(Icons.add_shopping_cart, size: 20, color: Colors.green),
-                    onPressed: () => _addToCart(product['id']),
+              Expanded(
+                flex: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(product['title'] ?? 'No Title', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      Text('\$${product['price']}', style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.w800)),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(product['category']?['name'] ?? 'Uncategorized', style: TextStyle(fontSize: 11, color: Colors.grey.shade500, fontWeight: FontWeight.w500), maxLines: 1, overflow: TextOverflow.ellipsis),
+                          ),
+                          GestureDetector(
+                            onTap: () => _addToCart(product['id']),
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.primary,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(Icons.add_shopping_cart, size: 14, color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ],
           ),
@@ -217,17 +246,80 @@ class _ProductsTabState extends State<ProductsTab> {
     );
   }
 
-  Widget _buildPlaceholderImage() => Container(width: 60, height: 60, color: Colors.grey.shade200, child: const Icon(Icons.inventory_2, size: 24, color: Colors.grey));
+  Widget _buildPlaceholderImage() => Container(color: Colors.grey.shade200, child: const Center(child: Icon(Icons.inventory_2, size: 36, color: Colors.grey)));
 
-  Widget _buildSortChip(String label, String sortValue) {
-    return ChoiceChip(
-      label: Text(label, style: const TextStyle(fontSize: 13)),
-      selected: _currentSort == sortValue,
-      onSelected: (selected) { if (selected) { setState(() => _currentSort = sortValue); _fetchProducts(); } },
-      selectedColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-      labelPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: -4),
-      padding: EdgeInsets.zero,
-      visualDensity: VisualDensity.compact,
+  void _showFilterBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Sort Products', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
+                      IconButton(icon: const Icon(Icons.close), padding: EdgeInsets.zero, constraints: const BoxConstraints(), onPressed: () => Navigator.pop(context)),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  _buildBottomSheetOption('Latest Added', '', setSheetState),
+                  _buildBottomSheetOption('Lowest Price', 'price', setSheetState),
+                  _buildBottomSheetOption('Release Date', 'date', setSheetState),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _fetchProducts();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: const Text('Apply Filter', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                    ),
+                  )
+                ],
+              ),
+            );
+          }
+        );
+      }
+    );
+  }
+
+  Widget _buildBottomSheetOption(String title, String sortValue, StateSetter setSheetState) {
+    bool isSelected = _currentSort == sortValue;
+    return GestureDetector(
+      onTap: () {
+        setSheetState(() => _currentSort = sortValue);
+        setState(() => _currentSort = sortValue); 
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? Theme.of(context).colorScheme.primary.withOpacity(0.05) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey.shade200, width: 1.5),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(title, style: TextStyle(fontSize: 15, fontWeight: isSelected ? FontWeight.bold : FontWeight.w500, color: isSelected ? Theme.of(context).colorScheme.primary : Colors.black87)),
+            if (isSelected) Icon(Icons.check_circle, size: 20, color: Theme.of(context).colorScheme.primary),
+            if (!isSelected) Icon(Icons.circle_outlined, size: 20, color: Colors.grey.shade300),
+          ],
+        ),
+      ),
     );
   }
 }

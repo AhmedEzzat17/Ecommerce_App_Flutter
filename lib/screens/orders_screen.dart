@@ -31,7 +31,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Orders'),
+        title: const Text('All Orders'),
         centerTitle: true,
       ),
       body: ListView.builder(
@@ -43,6 +43,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     final dateStr = order['created_at'] != null
                         ? DateTime.parse(order['created_at'].toString()).toLocal().toString().substring(0, 16)
                         : '';
+                    final userName = order['user_name'] ?? (order['user'] != null ? order['user']['name'] : null);
+                    final status = order['status'] ?? 'requested';
 
                     return Card(
                       margin: const EdgeInsets.symmetric(vertical: 6),
@@ -55,6 +57,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const SizedBox(height: 4),
+                            if (userName != null) Text('User: $userName', style: const TextStyle(fontWeight: FontWeight.w500)),
+                            Text('Status: ${status.toString().toUpperCase()}', style: const TextStyle(color: Colors.blueGrey)),
                             Text('Date: $dateStr'),
                             Text('Items: ${items.length}'),
                           ],

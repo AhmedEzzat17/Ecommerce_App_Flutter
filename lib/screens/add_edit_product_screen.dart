@@ -116,92 +116,116 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
     }
   }
 
+  InputDecoration _inputDecoration(String label, [IconData? icon]) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: TextStyle(color: Colors.grey.shade600),
+      filled: true,
+      fillColor: Colors.grey.shade50,
+      suffixIcon: icon != null ? Icon(icon, color: Colors.blueGrey) : null,
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade300)),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.product != null ? 'Edit Product' : 'Add Product'),
+        title: Text(widget.product != null ? 'Edit Product' : 'Add Product', style: const TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextField(
               controller: _titleController,
-              decoration: const InputDecoration(labelText: 'Title *'),
+              decoration: _inputDecoration('Title *'),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _descriptionController,
-              decoration: const InputDecoration(labelText: 'Description'),
+              decoration: _inputDecoration('Description'),
               maxLines: 3,
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _priceController,
-              decoration: const InputDecoration(labelText: 'Price *'),
+              decoration: _inputDecoration('Price *', Icons.attach_money),
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               value: _selectedCategory,
-              decoration: const InputDecoration(labelText: 'Category *'),
+              decoration: _inputDecoration('Category *'),
               items: _categories
-                  .map(
-                    (cat) => DropdownMenuItem<String>(
-                      value: cat['id'].toString(),
-                      child: Text(cat['name']),
-                    ),
-                  )
+                  .map((cat) => DropdownMenuItem<String>(value: cat['id'].toString(), child: Text(cat['name'])))
                   .toList(),
               onChanged: (value) => setState(() => _selectedCategory = value),
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               value: _selectedPriority,
-              decoration: const InputDecoration(labelText: 'Budget Range *'),
+              decoration: _inputDecoration('Budget Range *'),
               items: ['Low', 'Medium', 'High']
-                  .map(
-                    (p) => DropdownMenuItem<String>(value: p, child: Text(p)),
-                  )
+                  .map((p) => DropdownMenuItem<String>(value: p, child: Text(p)))
                   .toList(),
               onChanged: (value) => setState(() => _selectedPriority = value!),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _noteController,
-              decoration: const InputDecoration(labelText: 'Note (Optional)'),
+              decoration: _inputDecoration('Note (Optional)'),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _dateController,
-              decoration: const InputDecoration(
-                labelText: 'Date (Optional)',
-                suffixIcon: Icon(Icons.calendar_today),
-              ),
+              decoration: _inputDecoration('Date (Optional)', Icons.calendar_today),
               readOnly: true,
               onTap: _selectDate,
             ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: _pickImages,
-              icon: const Icon(Icons.image),
-              label: Text('Select Images (${_pickedImages.length})'),
+            const SizedBox(height: 24),
+            InkWell(
+              onTap: _pickImages,
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
+                  border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.3), width: 2),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    Icon(Icons.add_photo_alternate_outlined, size: 48, color: Theme.of(context).colorScheme.primary),
+                    const SizedBox(height: 12),
+                    Text(
+                      _pickedImages.isEmpty ? 'Tap to select product images' : '${_pickedImages.length} images selected',
+                      style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 32),
             _isSaving
                 ? const Center(child: CircularProgressIndicator())
-                : ElevatedButton(
-                    onPressed: _saveProduct,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(16),
-                    ),
-                    child: const Text(
-                      'Save Product',
-                      style: TextStyle(fontSize: 18),
+                : SizedBox(
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: _saveProduct,
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text('Save Product', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     ),
                   ),
+            const SizedBox(height: 24),
           ],
         ),
       ),

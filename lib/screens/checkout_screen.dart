@@ -109,7 +109,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         cartItemIds: cartItemIds,
       );
 
-      if (result != null && result['order'] != null) {
+      if (result != null) {
+        // Check if the order is wrapped in an 'order' or 'data' key or is directly in the result
+        final orderData = result['order'] ?? result['data'] ?? result;
+        
         // Clear the checked-out items from the cart on the server side
         for (var itemId in cartItemIds) {
           try {
@@ -124,7 +127,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         setState(() {
           _isLoading = false;
           _isSuccess = true;
-          _orderId = result['order']['order_number'].toString();
+          _orderId = (orderData['order_number'] ?? orderData['id'] ?? 'N/A').toString();
         });
       } else {
         throw Exception('Failed to place order');

@@ -257,11 +257,13 @@ class ApiService {
 
       if (res.statusCode == 200 || res.statusCode == 201) {
         return jsonDecode(res.body) as Map<String, dynamic>;
+      } else {
+        debugPrint('Failed to create order: ${res.statusCode} - ${res.body}');
+        throw Exception('Server Error: ${res.body}');
       }
-      return null;
     } catch (e) {
       debugPrint('Error creating order: $e');
-      return null;
+      rethrow;
     }
   }
 
@@ -272,7 +274,16 @@ class ApiService {
         headers: await _getHeaders(),
       );
       if (res.statusCode == 200) {
-        return jsonDecode(res.body) as List<dynamic>;
+        final decoded = jsonDecode(res.body);
+        if (decoded is List) {
+          return decoded;
+        } else if (decoded is Map && decoded.containsKey('data') && decoded['data'] is List) {
+          return decoded['data'] as List<dynamic>;
+        } else if (decoded is Map && decoded.containsKey('orders') && decoded['orders'] is List) {
+          return decoded['orders'] as List<dynamic>;
+        }
+      } else {
+        debugPrint('Failed to get orders: Status ${res.statusCode}, Body: ${res.body}');
       }
       return [];
     } catch (e) {

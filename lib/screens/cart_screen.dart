@@ -4,6 +4,7 @@ import 'checkout_screen.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({Key? key}) : super(key: key);
+    // const CartScreen({super.key});
 
   @override
   _CartScreenState createState() => _CartScreenState();
@@ -39,8 +40,7 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   void _updateQuantity(int itemId, int quantity) async {
-    if (quantity <= 0) {
-      _removeItem(itemId);
+    if (quantity < 1) {
       return;
     }
     await ApiService.updateCartItem(itemId, quantity);
@@ -114,38 +114,87 @@ class _CartScreenState extends State<CartScreen> {
                 final item = items[index];
                 final product = item['product'] ?? {};
                 
-                return Card(
+                final images = product['images'] as List<dynamic>? ?? [];
+                final displayUrl = (images.isNotEmpty && images[0] is Map) ? images[0]['image_path'] : (images.isNotEmpty ? images[0] : null);
+
+                return Container(
                   margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  child: ListTile(
-                    leading: Checkbox(
-                      value: _selectedItemIds.contains(item['id']),
-                      onChanged: (bool? checked) {
-                        setState(() {
-                          if (checked == true) {
-                            _selectedItemIds.add(item['id']);
-                          } else {
-                            _selectedItemIds.remove(item['id']);
-                          }
-                        });
-                      },
-                    ),
-                    title: Text(product['title'] ?? 'Unknown Product'),
-                    subtitle: Text('Price: \$${item['price'] ?? product['price']}'),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4))],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
                       children: [
-                        IconButton(
-                          icon: const Icon(Icons.remove_circle_outline),
-                          onPressed: () => _updateQuantity(item['id'], item['quantity'] - 1),
+                        Checkbox(
+                          value: _selectedItemIds.contains(item['id']),
+                          activeColor: Theme.of(context).colorScheme.primary,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                          onChanged: (bool? checked) {
+                            setState(() {
+                              if (checked == true) {
+                                _selectedItemIds.add(item['id']);
+                              } else {
+                                _selectedItemIds.remove(item['id']);
+                              }
+                            });
+                          },
                         ),
-                        Text('${item['quantity']}', style: const TextStyle(fontSize: 18)),
-                        IconButton(
-                          icon: const Icon(Icons.add_circle_outline),
-                          onPressed: () => _updateQuantity(item['id'], item['quantity'] + 1),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: displayUrl != null
+                              ? Image.network(displayUrl.toString(), width: 60, height: 60, fit: BoxFit.cover, errorBuilder: (c, e, s) => Container(width: 60, height: 60, color: Colors.grey.shade200, child: const Icon(Icons.inventory_2, color: Colors.grey)))
+                              : Container(width: 60, height: 60, color: Colors.grey.shade200, child: const Icon(Icons.inventory_2, color: Colors.grey)),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _removeItem(item['id']),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(product['title'] ?? 'Unknown Product', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+                              const SizedBox(height: 4),
+                              Text('\$${item['price'] ?? product['price']}', style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.w700)),
+                            ],
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                              onPressed: () => _removeItem(item['id']),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                InkWell(
+                                  onTap: item['quantity'] > 1 ? () => _updateQuantity(item['id'], item['quantity'] - 1) : null,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(color: item['quantity'] > 1 ? Colors.grey.shade200 : Colors.grey.shade100, borderRadius: BorderRadius.circular(4)),
+                                    child: Icon(Icons.remove, size: 16, color: item['quantity'] > 1 ? Colors.black87 : Colors.grey.shade400),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                  child: Text('${item['quantity']}', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                ),
+                                InkWell(
+                                  onTap: () => _updateQuantity(item['id'], item['quantity'] + 1),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(4)),
+                                    child: Icon(Icons.add, size: 16, color: Theme.of(context).colorScheme.primary),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ],
                     ),

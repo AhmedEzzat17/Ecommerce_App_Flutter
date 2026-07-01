@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 
-// اللون الرئيسي للتطبيق بالكامل - يمكن تغييره من هنا في ثانية واحدة!
 const Color appPrimaryColor = Color.fromARGB(255, 12, 107, 52);
 
 void main() async {

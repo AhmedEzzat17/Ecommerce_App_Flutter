@@ -11,6 +11,9 @@ class OrderDetailsScreen extends StatelessWidget {
     final dateStr = order['created_at'] != null
         ? DateTime.parse(order['created_at'].toString()).toLocal().toString().substring(0, 16)
         : 'N/A';
+    final userName = order['user_name'] ?? (order['user'] != null ? order['user']['name'] : null);
+    final userEmail = order['user_email'] ?? (order['user'] != null ? order['user']['email'] : null);
+    final status = order['status'] ?? 'requested';
 
     return Scaffold(
       appBar: AppBar(
@@ -36,6 +39,9 @@ class OrderDetailsScreen extends StatelessWidget {
                     const Divider(),
                     const SizedBox(height: 8),
                     _buildSummaryRow('Date:', dateStr),
+                    if (userName != null) _buildSummaryRow('Customer:', userName),
+                    if (userEmail != null) _buildSummaryRow('Email:', userEmail),
+                    _buildSummaryRow('Status:', status.toString().toUpperCase(), valueStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blueGrey)),
                     _buildSummaryRow('Payment Method:', (order['payment_method'] ?? '').toString().toUpperCase()),
                     _buildSummaryRow('Shipping Address:', order['address'] ?? 'N/A'),
                     _buildSummaryRow('Phone Number:', order['phone'] ?? 'N/A'),
