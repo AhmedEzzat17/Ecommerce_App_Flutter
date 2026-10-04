@@ -58,6 +58,7 @@ SharedPreferences is used to store authentication data and maintain the user's l
 
 ## Project Structure
 
+```text
 lib/
 ├── screens/
 │   ├── home_screen.dart
@@ -73,6 +74,7 @@ lib/
 │   └── ...
 ├── api_service.dart
 └── main.dart
+```
 
 ## Technologies
 
@@ -90,11 +92,11 @@ lib/
 ## Architecture
 
 Flutter App
-     ↓
+     │
 ApiService
-     ↓
+     │
 Laravel REST API
-     ↓
+     │
 Database
 
 ## Project Focus
